@@ -5,6 +5,10 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import { Axes } from './tools';
 import Hand from './hand';
 
+import Dots from './dots';
+
+const clock = new THREE.Clock();
+
 let container;
 let camera, scene, renderer;
 let controller1, controller2;
@@ -13,6 +17,7 @@ let controllerGrip1, controllerGrip2;
 let raycaster;
 
 let hand = null;
+let dots = null;
 
 let currentProjectileIndex = 0;
 
@@ -36,7 +41,7 @@ function init() {
 
     scene.add(Axes());
 
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10);
+    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 3, 3);
 
     controls = new OrbitControls(camera, container);
@@ -91,9 +96,13 @@ function init() {
     // controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
     // scene.add(controllerGrip2);
 
-    hand = new Hand(renderer);
+    //hand = new Hand(renderer);
 
-    scene.add(hand);
+   // scene.add(hand);
+
+    dots = new Dots(scene); 
+
+
 
     // document.addEventListener('click', () => {
     //     hand.shootProjectile();
@@ -102,19 +111,11 @@ function init() {
 
     raycaster = new THREE.Raycaster();
 
+    clock.start();
+
     window.addEventListener('resize', onWindowResize);
 
 }
-
-function onWindowResize() {
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-}
-
 
 function animate() {
 
@@ -124,10 +125,21 @@ function animate() {
 
 function render() {
 
-    if (hand != null) {
-        hand.update();
-    }
+    // Get the elapsed time in seconds since the clock started
+    const elapsedTime = clock.getElapsedTime();
+
+    //hand.update(); 
+    dots.update(elapsedTime); 
 
     renderer.render(scene, camera);
+
+}
+
+function onWindowResize() {
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
