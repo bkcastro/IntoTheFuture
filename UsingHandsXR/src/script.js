@@ -11,10 +11,7 @@ const clock = new THREE.Clock();
 
 let container;
 let camera, scene, renderer;
-let controller1, controller2;
-let controllerGrip1, controllerGrip2;
-
-let raycaster;
+let controller;
 
 let hand = null;
 let dots = null;
@@ -28,6 +25,10 @@ let controls, group;
 
 var user = { isSelecting: false };
 
+let projectiles = [];
+
+console.log("init")
+
 init();
 animate();
 
@@ -39,7 +40,7 @@ function init() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x808080);
 
-    scene.add(Axes());
+    scene.add(Axes(.5, .5));
 
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
     camera.position.set(0, 3, 3);
@@ -47,23 +48,11 @@ function init() {
     controls = new OrbitControls(camera, container);
     controls.update();
 
-    const floorGeometry = new THREE.PlaneGeometry(6, 6);
-    const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.25, blending: THREE.CustomBlending, transparent: false });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = - Math.PI / 2;
-    floor.receiveShadow = true;
-    //scene.add(floor);
-
     scene.add(new THREE.HemisphereLight(0xbcbcbc, 0xa5a5a5, 3));
 
     const light = new THREE.DirectionalLight(0xffffff, 3);
     light.position.set(0, 6, 0);
     light.castShadow = true;
-    // light.shadow.camera.top = 3;
-    // light.shadow.camera.bottom = - 3;
-    // light.shadow.camera.right = 3;
-    // light.shadow.camera.left = - 3;
-    // light.shadow.mapSize.set(4096, 4096);
     scene.add(light);
 
     const aLight = new THREE.AmbientLight(new THREE.Color(0xffffff), 100);
@@ -79,42 +68,12 @@ function init() {
 
     document.body.appendChild(XRButton.createButton(renderer, { 'optionalFeatures': ['depth-sensing'] }));
 
-    // controllers
+    hand = new Hand(scene, renderer);
 
-    // controller2 = renderer.xr.getController(1);
-    // controller2.addEventListener('selectstart', onSelectStart);
-    // controller2.addEventListener('selectend', onSelectEnd);
-    // scene.add(controller2);
-
-    // const controllerModelFactory = new XRControllerModelFactory();
-
-    // controllerGrip1 = renderer.xr.getControllerGrip(0);
-    // controllerGrip1.add(controllerModelFactory.createControllerModel(controllerGrip1));
-    // scene.add(controllerGrip1);
-
-    // controllerGrip2 = renderer.xr.getControllerGrip(1);
-    // controllerGrip2.add(controllerModelFactory.createControllerModel(controllerGrip2));
-    // scene.add(controllerGrip2);
-
-    //hand = new Hand(renderer);
-
-   // scene.add(hand);
-
-    dots = new Dots(scene); 
-
-
-
-    // document.addEventListener('click', () => {
-    //     hand.shootProjectile();
-    //     console.log("clicked")
-    // })
-
-    raycaster = new THREE.Raycaster();
-
-    clock.start();
-
+    dots = new Dots();
+    dots.position.add(new THREE.Vector3(0, 1, 0))
+    scene.add(dots);
     window.addEventListener('resize', onWindowResize);
-
 }
 
 function animate() {
@@ -128,11 +87,8 @@ function render() {
     // Get the elapsed time in seconds since the clock started
     const elapsedTime = clock.getElapsedTime();
 
-    //hand.update(); 
-    dots.update(elapsedTime); 
-
+    hand.update();
     renderer.render(scene, camera);
-
 }
 
 function onWindowResize() {
@@ -143,3 +99,4 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
+

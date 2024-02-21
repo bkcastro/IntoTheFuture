@@ -1,99 +1,77 @@
 
 import * as THREE from 'three';
+import { Axes } from './tools';
 
-class Hand extends THREE.Object3D {
-    constructor(renderer) {
-        super();
+class Hand {
+    constructor(scene, renderer) {
 
-        this.controller1 = renderer.xr.getController(0);
-        this.controller1.addEventListener('selectstart', this.onSelectStart);
-        this.controller1.addEventListener('selectend', this.onSelectEnd);
-        this.add(this.controller1);
+        this.controller = renderer.xr.getController(0);
+        this.controller.addEventListener('selectstart', this.onSelectStart.bind(this));
+        this.controller.addEventListener('selectend', this.onSelectEnd.bind(this));
 
+        this.controller.add(Axes(.1, .1));
+        scene.add(this.controller);
 
-
-        //const geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -.3)]);
-        //const line = new THREE.Line(geometry);
+        this.scene = scene;
         this.projectiles = [];
-        this.currentProjectileIndex = 0;
 
-        this.Cones(10);
+        var geometry = new THREE.BoxGeometry(.1 / 2, .1 / 2, .1 / 2);
+        var material = new THREE.MeshPhysicalMaterial({ color: new THREE.Color("red"), wireframe: true })
+        this.projectile = new THREE.Mesh(geometry, material);
+        //this.projectile.rotateX(-Math.PI / 2);
+        //this.projectile.position.set(0, .2, 0);
 
+        this.currentIndex = 0;
 
+        this.controller.add(this.projectile);
+
+        this.intervalCheck = null;
+
+        // Iron Sight 
     }
 
-    shootProjectile() {
+    repeat() {
+        console.log("hi");
+        var velocity = new THREE.Vector3(0, 0, -1).applyQuaternion(this.controller.quaternion).multiplyScalar(.01);
 
-        if (this.currentProjectileIndex < this.projectiles.length) {
-            const projectile = this.projectiles[this.currentProjectileIndex];
-            const direction = new THREE.Vector3();
-            this.controller1.getWorldDirectio(direction);
-            projectile.velocity = direction.clone().multiplyScalar(0.01); // Change the velocity to shoot in the correct direction
-            projectile.position.copy(this.controller1.position); // Set the position of the projectile to the controller position
-            projectile.visible = true; // Make the projectile visible
-            this.currentProjectileIndex += 1;
-        } else {
+        var temp = this.projectile.clone();
+        temp.position.copy(this.controller.position);
+        temp.userData.velocity = velocity;
+        this.projectiles.push(temp);
+        this.scene.add(temp);
+    }
 
-            // var angle = 2 * Math.PI / this.projectiles.length;
-            // var theta = 0;
-            // this.currentProjectileIndex = 0;
-            // this.projectiles.forEach((projectile,) => {
-            //     projectile.position.set(Math.cos(theta) / 4, Math.sin(theta) / 4, 0);
-            //     projectile.visible = true;
-            //     theta += angle;
-            // })
+    onSelectStart() {
+        console.log("selecting");
 
+        if (this.intervalCheck == null) {
+            this.intervalCheck = setInterval(this.repeat(), 250);
         }
     }
 
-    onSelectStart(event) {
-        console.log("selecting")
-        this.shootProjectile();
+    onSelectEnd() {
+        console.log("ending select start");
 
-    }
-
-    onSelectEnd(event) {
-
-    }
-
-    Cones(n = 1, r = 5) {
-
-        var geometry = new THREE.ConeGeometry(.05, .1, 32);
-        var material = new THREE.MeshPhysicalMaterial({ color: new THREE.Color("red") })
-        material.metalness = 1
-        material.roughness = 1
-        material.ior = 1.5
-        material.thickness = 0.5
-
-        var angle = 2 * Math.PI / n;
-        var theta = 0;
-
-        for (var i = 0; i < n; i++) {
-
-            const cone = new THREE.Mesh(geometry, material);
-            cone.rotateX(-Math.PI / 2)
-            cone.position.set(Math.cos(theta) / 4, Math.sin(theta) / 4, 0);
-            //this.add(cone);
-            this.projectiles.push(cone);
-            this.controller1.add(cone);
-            theta += angle;
+        if (this.intervalCheck != null) {
+            clearInterval(this.intervalCheck);
+            this.intervalCheck = null;
         }
     }
 
     update() {
-        //this.rotateZ(0.04);
 
-        for (let i = 0; i < this.currentProjectileIndex; i++) {
-            const projectile = this.projectiles[i];
+        // Remove the projectiles that are old. 
 
-            if (projectile.visible == true) {
-                if (projectile.length > 30) {
-                    projectile.visible = false;
-                } else {
-                    projectile.position.add(projectile.velocity);
-                }
-            }
-        }
+        // Apply the velocity to each projectile
+        this.projectiles.forEach((projectile) => {
+            projectile.position.add(projectile.userData.velocity);
+            projectile.rotation.x += .01;
+            projectile.rotation.y += .01;
+        })
+
+        this.projectile.rotation.x += 0.1;
+        this.projectile.rotation.y += 0.1;
+        this.projectile.rotation.z += 0.1;
     }
 
 }
