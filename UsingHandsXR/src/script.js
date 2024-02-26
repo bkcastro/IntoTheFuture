@@ -5,6 +5,8 @@ import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFa
 import { Axes } from './tools';
 import Hand from './hand';
 
+import Rasengan from './rasengan';
+
 import Dots from './dots';
 
 const clock = new THREE.Clock();
@@ -26,6 +28,8 @@ let controls, group;
 var user = { isSelecting: false };
 
 let projectiles = [];
+
+let rasengan = null;
 
 console.log("init")
 
@@ -70,9 +74,14 @@ function init() {
 
     hand = new Hand(scene, renderer);
 
-    dots = new Dots();
-    dots.position.add(new THREE.Vector3(0, 1, 0))
-    scene.add(dots);
+    //dots = new Dots();
+    // dots.position.add(new THREE.Vector3(0, 1, 0))
+    // scene.add(dots);
+
+    rasengan = new Rasengan();
+
+    scene.add(rasengan);
+
     window.addEventListener('resize', onWindowResize);
 }
 
@@ -88,6 +97,7 @@ function render() {
     const elapsedTime = clock.getElapsedTime();
 
     hand.update();
+    rasengan.update();
     renderer.render(scene, camera);
 }
 

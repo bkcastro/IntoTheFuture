@@ -1,24 +1,10 @@
-varying vec3 vColor;
+uniform float time;
+uniform vec3 color;
 
-void main()
-{
-    // Disc
-    // float strength = distance(gl_PointCoord, vec2(0.5));
-    // strength = step(0.5, strength); // Step alternates between 0 or 1.
-    // strength = 1.0 - strength;
+void main() {
+    // Swirling distortions based on time and position
+    vec3 distortedPosition = position + sin(time + position.length() * 10.0) * 0.1; 
 
-    //Diffuse Point
-    // float strength = distance(gl_PointCoord, vec2(0.5));
-    // strength  *= 2.0;
-    // strength = 1.0 - strength;
-
-    // Light point
-    float strength = distance(gl_PointCoord, vec2(0.5));
-    strength  = 1.0 - strength;
-    strength = pow(strength, 10.0);
-
-    vec3 color = mix(vec3(0.0, 0.0, 0.0), vColor, 1.0);
-
-    gl_FragColor = vec4(vec3(color), 1.0);
-
+    // Combine swirling effect with color and noise 
+    gl_FragColor = vec4(color * (0.5 + noise(distortedPosition * 5.0)), 1.0); 
 }

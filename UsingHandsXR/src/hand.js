@@ -31,7 +31,6 @@ class Hand {
     }
 
     repeat() {
-        console.log("hi");
         var velocity = new THREE.Vector3(0, 0, -1).applyQuaternion(this.controller.quaternion).multiplyScalar(.01);
 
         var temp = this.projectile.clone();
