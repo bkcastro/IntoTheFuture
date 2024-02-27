@@ -97,7 +97,7 @@ function render() {
     const elapsedTime = clock.getElapsedTime();
 
     hand.update();
-    rasengan.update();
+    rasengan.update(elapsedTime);
     renderer.render(scene, camera);
 }
 
