@@ -15,7 +15,7 @@ class Rasengan extends THREE.Object3D {
         const texture = textureLoader.load('textures/rasengan.png');
 
 
-        const geometry = new THREE.SphereGeometry(5, 60, 60);
+        const geometry = new THREE.SphereGeometry(1, 60, 60);
         const outerMaterial = new THREE.ShaderMaterial({
             uniforms: {
                 color: { value: new THREE.Color("red") }
@@ -24,8 +24,8 @@ class Rasengan extends THREE.Object3D {
             fragmentShader: fragmentOut,
             transparent: true,
             opacity: 0.5,
-        }) 
-        
+        })
+
         const outerSphere = new THREE.Mesh(geometry, outerMaterial);
         this.add(outerSphere);
 
@@ -37,17 +37,17 @@ class Rasengan extends THREE.Object3D {
             fragmentShader: fragmentAura,
             blending: THREE.AdditiveBlending,
             side: THREE.BackSide,
-        }) 
-        
+        })
+
         const auraSphere = new THREE.Mesh(geometry, auraMaterial);
         auraSphere.scale.set(.4, .4, .4);
         this.add(auraSphere);
 
-        this.sphereRadius = 9;
+        this.sphereRadius = 2;
 
-        this.particleCount = 600;
+        this.particleCount = 200;
         const particleGeometry = new THREE.BufferGeometry();
-        const particleMaterial = new THREE.PointsMaterial({color: 0xffffff, size: .25});
+        const particleMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: .005 });
         this.positions = new Float32Array(this.particleCount * 3);
         this.velocities = [];
 
@@ -59,12 +59,14 @@ class Rasengan extends THREE.Object3D {
             );
             vertex.toArray(this.positions, i * 3);
 
-            this.velocities.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(.1));
+            this.velocities.push(new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(.001));
         }
 
         particleGeometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
         this.particles = new THREE.Points(particleGeometry, particleMaterial);
         this.add(this.particles);
+
+        this.scale.set(.04, .04, .04);
     }
 
     update(time) {
@@ -82,7 +84,7 @@ class Rasengan extends THREE.Object3D {
             // Check for collision with the sphere and reflect the velocity
             const position = new THREE.Vector3(positionAttribute.array[index], positionAttribute.array[index + 1], positionAttribute.array[index + 2]);
             const directionToCenter = position.clone().negate().normalize();
-            const gravityStrength = 0.001; // Adjust the strength of the gravitational pull
+            const gravityStrength = 0.002; // Adjust the strength of the gravitational pull
             velocity.add(directionToCenter.multiplyScalar(gravityStrength));
 
             if (position.length() >= this.sphereRadius) {
@@ -94,8 +96,8 @@ class Rasengan extends THREE.Object3D {
         positionAttribute.needsUpdate = true;
 
 
-        this.rotateX(.05);
-        this.rotateY(.05);
+        this.rotateX(.04);
+        this.rotateY(.04);
         //this.rotateZ(.05);
     }
 }

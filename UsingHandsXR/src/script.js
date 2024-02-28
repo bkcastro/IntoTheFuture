@@ -31,8 +31,6 @@ let projectiles = [];
 
 let rasengan = null;
 
-console.log("init")
-
 init();
 animate();
 
@@ -47,7 +45,7 @@ function init() {
     scene.add(Axes(.5, .5));
 
     camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(0, 3, 3);
+    camera.position.set(0, 10, 10);
 
     controls = new OrbitControls(camera, container);
     controls.update();
@@ -74,14 +72,6 @@ function init() {
 
     hand = new Hand(scene, renderer);
 
-    //dots = new Dots();
-    // dots.position.add(new THREE.Vector3(0, 1, 0))
-    // scene.add(dots);
-
-    rasengan = new Rasengan();
-
-    scene.add(rasengan);
-
     window.addEventListener('resize', onWindowResize);
 }
 
@@ -96,12 +86,12 @@ function render() {
     // Get the elapsed time in seconds since the clock started
     const elapsedTime = clock.getElapsedTime();
 
-    hand.update();
-    rasengan.update(elapsedTime);
+    hand.update(elapsedTime);
     renderer.render(scene, camera);
 }
 
 function onWindowResize() {
+
 
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
